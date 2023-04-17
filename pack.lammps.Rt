@@ -1,0 +1,43 @@
+<?R
+	eps = 0.001
+	lims = c(0,0.2,0,0.9,0,0.9)
+	part_gen_radius = 0.006
+	part_gen_volume_fraction = 0.2
+?>
+# Initialisation
+units 		cgs
+boundary 	f p p
+newton		off # required off for tangential history
+atom_style 	sphere
+atom_modify	map array
+atom_modify	sort 1 0.4
+communicate   	single vel yes
+processors	1 1 1
+
+neighbor      	1e-4 bin # ensure skin distance + rp_lrg + rp_sml > dp_lrg
+neigh_modify  	delay 0
+
+# Declare domain
+region		domain block <?R cat(lims) ?>
+create_box	1 domain
+
+# Specify particle groups
+group  particle_group type 1
+
+# Define region for particle insertion
+region  pack mesh/tet file frac_32_1_1.vtk scale 1 move 0 0 0 rotate 0 0 0
+
+thermo_style    custom step atoms ke vol
+thermo          1
+thermo_modify   lost ignore norm no
+
+# Insert particles
+fix     part_1 particle_group particletemplate/sphere 17891 atom_type 1 density constant 1.0 radius constant <?%.10f part_gen_radius ?>
+fix     dist particle_group particledistribution/discrete 18143 1 part_1 1
+fix 	ins particle_group insert/pack seed 100003 distributiontemplate dist maxattempt 500 insert_every once overlapcheck yes all_in yes region pack volumefraction_region <?%f part_gen_volume_fraction ?> check_dist_from_subdomain_border no
+run	1
+write_data pack.data
+unfix	ins
+unfix	dist
+unfix	part_1
+delete_atoms group particle_group

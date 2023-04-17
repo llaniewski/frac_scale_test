@@ -1,0 +1,66 @@
+<?R
+
+N=2
+
+frac_alpha = 4.5
+frac_corr = 0.5
+frac_froll = 2.5
+frac_gap = 0.12
+frac_genie_h = 9e-05
+frac_refine = 32
+frac_sd = 0.002
+frac_width = 0.9
+
+height = 0.2
+
+fracseed = 12
+
+library(rfracture)
+
+res = 320
+vis = FALSE
+
+power.iso = function(f) frac_sd^2*ifelse(f<frac_froll,1,(f/frac_froll)^-frac_alpha)
+frac_corr.profile = function(lambda) frac_corr
+
+org = lapply(1:N, function(N) {
+  cat("generating",N,"\n")
+  obj = fracture_geom(
+    width = frac_width*N,
+    period = frac_width,
+    refine = frac_refine*N,
+    corr.profile = frac_corr.profile,
+    power.iso = power.iso,
+    seed = fracseed
+  )
+  obj = set_gap(obj, gap = frac_gap)
+})
+
+r = range(org[[1]]$points$f1,org[[1]]$points$f2)
+cat("range:",r[1],r[2],diff(r),"\n")
+if (diff(r) >= height) stop("fracture too wide")
+offset = height/2-mean(r)
+transform = function(p) data.frame(x=p$z+offset, y=p$x, z=p$y)
+cat("range after offset:",r[1]+offset,r[2]+offset,diff(r),"\n")
+
+ns = expand.grid(a=1:N,b=1:N)
+ns = ns[ns$a >= ns$b, ]
+ns = lapply(seq_len(nrow(ns)), function(i) as.list(ns[i,]))
+for (n in ns) {
+  nm = paste("frac",frac_refine,n$a,n$b,sep="_")
+  k = max(n$a,n$b)
+  cat(nm, "from", k, "\n")
+  eps = 1e-2
+  obj = org[[k]]
+  obj = slice(obj, by="x", level=0, type="above", edge_is_border = TRUE, eps=eps)
+  obj = slice(obj, by="x", level=frac_width*n$a, type="below", edge_is_border = FALSE, eps=eps)
+  obj = slice(obj, by="y", level=0, type="above", edge_is_border = FALSE, eps=eps)
+  obj = slice(obj, by="y", level=frac_width*n$b, type="below", edge_is_border = FALSE, eps=eps)
+  obj = slice(obj, by="h", level=0, type="above")
+
+  frac = obj
+
+  write.stl(frac, con = paste(nm,"stl",sep="."), transform=transform)
+  if (n$a == 1 && n$b == 1) write.vtk.tet.mesh(frac, paste(nm,"vtk",sep="."), transform=transform)
+}
+?>
