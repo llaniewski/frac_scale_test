@@ -40,7 +40,11 @@ else
 	git clone git@github.com:CFD-GO/TCLB_cluster.git p
 fi
 
-
+if ! test -L data
+then
+	ln -s ../data/ data
+fi
 
 p/config -y "$@"
 p/make d3q27_PSM_NEBB
+
