@@ -25,7 +25,7 @@ create_box	1 domain
 group  particle_group type 1
 
 # Define region for particle insertion
-region  pack mesh/tet file frac_32_1_1.vtk scale 1 move 0 0 0 rotate 0 0 0
+region  pack mesh/tet file data/frac_32_1_1.vtk scale 1 move 0 0 0 rotate 0 0 0
 
 thermo_style    custom step atoms ke vol
 thermo          1
@@ -36,7 +36,7 @@ fix     part_1 particle_group particletemplate/sphere 17891 atom_type 1 density 
 fix     dist particle_group particledistribution/discrete 18143 1 part_1 1
 fix 	ins particle_group insert/pack seed 100003 distributiontemplate dist maxattempt 500 insert_every once overlapcheck yes all_in yes region pack volumefraction_region <?%f part_gen_volume_fraction ?> check_dist_from_subdomain_border no
 run	1
-write_data pack.data
+write_data data/pack.data
 unfix	ins
 unfix	dist
 unfix	part_1
