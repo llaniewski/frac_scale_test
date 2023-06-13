@@ -60,7 +60,7 @@ for (n in ns) {
 
   frac = obj
 
-  write.stl(frac, con = paste(nm,"stl",sep="."), transform=transform)
-  if (n$a == 1 && n$b == 1) write.vtk.tet.mesh(frac, paste(nm,"vtk",sep="."), transform=transform)
+  write.stl(frac, con = paste0("data/",nm,".stl"), transform=transform)
+  if (n$a == 1 && n$b == 1) write.vtk.tet.mesh(frac, paste0("data/",nm,".vtk"), transform=transform)
 }
 ?>
