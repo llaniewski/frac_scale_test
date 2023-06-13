@@ -1,3 +1,10 @@
+<?R
+	rows = function(x) lapply(seq_len(nrow(x)), function(i) lapply(x, "[[", i))
+
+	tab=read.csv("tab.csv")
+	for(x in rows(tab)) {
+		sink(paste(x$case_name,"lammps",sep="."))
+?>
 # Initialisation
 units 		cgs
 boundary 	f p p
@@ -11,7 +18,7 @@ neighbor      	0.006 bin # ensure skin distance + rp_lrg + rp_sml > dp_lrg
 neigh_modify  	delay 0
 
 # load data
-read_data pack_1_1.data
+read_data <?%s x$pack_name ?>.data
 
 # Specify particle groups
 group  particle_group type 1
@@ -23,7 +30,7 @@ fix     m2 all property/global poissonsRatio peratomtype 0.5 # defines kn, kt, g
 fix	m3 all property/global coefficientRestitution peratomtypepair 1 0.8 # defines damping, must be >0.05
 fix	m4 all property/global coefficientFriction peratomtypepair 1 0.5 # defines friction
 
-fix	frac_wall all mesh/surface file frac_32_1_1.stl type 1 scale 1.0
+fix	frac_wall all mesh/surface file <?%s x$frac_name ?>.stl type 1 scale 1.0
 
 # Define physics for particle interactions
 pair_style 	gran model hertz tangential history # 'tangential off' sets Ft=0; 'tangential no_history' incorporates damping to Ft, sets kt=0; 'tangential history' incorporate kt and damping into Ft
@@ -41,21 +48,26 @@ fix 	tclb all external pf/callback 1 1
 
 timestep 7.233796e-05
 
-variable vxx atom 'vx*vx'
-variable vxy atom 'vx*vy'
-variable vxz atom 'vx*vz'
-variable vyy atom 'vy*vy'
-variable vyz atom 'vy*vz'
-variable vzz atom 'vz*vz'
-compute vsum all reduce ave vx vy vz v_vxx v_vxy v_vxz v_vyy v_vyz v_vzz
-fix timeave all ave/time 1 100 100 c_vsum[1] c_vsum[2] c_vsum[3] c_vsum[4] c_vsum[5] c_vsum[6] c_vsum[7] c_vsum[8] c_vsum[9] file output/flow_vtab.txt
+#variable vxx atom 'vx*vx'
+#variable vxy atom 'vx*vy'
+#variable vxz atom 'vx*vz'
+#variable vyy atom 'vy*vy'
+#variable vyz atom 'vy*vz'
+#variable vzz atom 'vz*vz'
+#compute vsum all reduce ave vx vy vz v_vxx v_vxy v_vxz v_vyy v_vyz v_vzz
+#fix timeave all ave/time 1 100 100 c_vsum[1] c_vsum[2] c_vsum[3] c_vsum[4] c_vsum[5] c_vsum[6] c_vsum[7] c_vsum[8] c_vsum[9] file output/flow_vtab.txt
 
-#dump	dmp all custom     500 output/flow_part_* id type x y z ix iy iz vx vy vz fx fy fz omegax omegay omegaz radius 
-dump	dmp all custom/vtk 10  output/flow_part_*.vtk id type type x y z ix iy iz vx vy vz fx fy fz omegax omegay omegaz radius
+#dump	dmp all custom     500 output/<?%s x$case_name ?>_* id type x y z ix iy iz vx vy vz fx fy fz omegax omegay omegaz radius 
+#dump	dmp all custom/vtk 10  output/<?%s x$case_name ?>_*.vtk id type type x y z ix iy iz vx vy vz fx fy fz omegax omegay omegaz radius
 
-thermo_style    custom step atoms ke vol c_vsum[1] c_vsum[2] c_vsum[3]
+#thermo_style    custom step atoms ke vol c_vsum[1] c_vsum[2] c_vsum[3]
+thermo_style    custom step atoms ke vol
 thermo          1000
 thermo_modify   lost ignore norm no
 
 # Run simulation
 run	13824 upto
+<?R
+		sink()
+	}
+?>

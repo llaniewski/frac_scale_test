@@ -1,4 +1,10 @@
-<?R source("lattice_size.R") ?>
+<?R
+	rows = function(x) lapply(seq_len(nrow(x)), function(i) lapply(x, "[[", i))
+
+	tab=read.csv("tab.csv")
+	for(x in rows(tab)) {
+		sink(paste(x$case_name,"xml",sep="."))
+?>
 <?xml version="1.0"?>
 <CLBConfig version="2.0" output="output/">
 	<Units>
@@ -6,10 +12,10 @@
 		<Param value="0.01m2/s" gauge="0.1666666"/>
 		<Param value="1kg/m3" gauge="1"/>
 	</Units>
-	<Geometry nx="0.2m" ny="0.9m" nz="0.9m">
+	<Geometry nx="0.2m" ny="<?%f 0.9*x$ny ?>m" nz="<?%f 0.9*x$nz ?>m">
 		<BGK><Box/></BGK>
 		<Wall mask="ALL">
-			<STL file="frac_32_1_1.stl" scale="1m" side="out" ray_axis="x"/>
+			<STL file="<?%s x$frac_name ?>.stl" scale="1m" side="out" ray_axis="x"/>
 		</Wall>
 	</Geometry>
 	<Model>
@@ -19,6 +25,10 @@
 	</Model>
 <!--	<VTK what="U,BOUNDARY,Solid"/>
 	<VTK Iterations="100" what="U,BOUNDARY,Solid"/> -->
-	<Log Iterations="100"/>
-	<Solve Iterations="1s"/> 
+	<Log Iterations="500"/>
+	<Solve Iterations="13823"/> 
 </CLBConfig>
+<?R
+		sink()
+	}
+?>
