@@ -3,9 +3,9 @@
 #SBATCH --partition=gpuq
 #SBATCH --account=pawsey0267
 #SBATCH --nodes=1
-#SBATCH --ntasks=1
+#SBATCH --ntasks=5
 #SBATCH --cpus-per-task=1
-#SBATCH --ntasks-per-node=1
+#SBATCH --ntasks-per-node=5
 #SBATCH --gres=gpu:1
 #SBATCH --mem=16G
 #SBATCH --time=1:00:00
