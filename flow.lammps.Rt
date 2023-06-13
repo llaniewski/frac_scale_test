@@ -1,9 +1,9 @@
 <?R
 	rows = function(x) lapply(seq_len(nrow(x)), function(i) lapply(x, "[[", i))
 
-	tab=read.csv("tab.csv")
+	tab=read.csv("data/tab.csv")
 	for(x in rows(tab)) {
-		sink(paste(x$case_name,"lammps",sep="."))
+		sink(paste0("data/",x$case_name,".lammps"))
 ?>
 # Initialisation
 units 		cgs
@@ -18,7 +18,7 @@ neighbor      	0.006 bin # ensure skin distance + rp_lrg + rp_sml > dp_lrg
 neigh_modify  	delay 0
 
 # load data
-read_data <?%s x$pack_name ?>.data
+read_data data/<?%s x$pack_name ?>.data
 
 # Specify particle groups
 group  particle_group type 1
@@ -30,7 +30,7 @@ fix     m2 all property/global poissonsRatio peratomtype 0.5 # defines kn, kt, g
 fix	m3 all property/global coefficientRestitution peratomtypepair 1 0.8 # defines damping, must be >0.05
 fix	m4 all property/global coefficientFriction peratomtypepair 1 0.5 # defines friction
 
-fix	frac_wall all mesh/surface file <?%s x$frac_name ?>.stl type 1 scale 1.0
+fix	frac_wall all mesh/surface file data/<?%s x$frac_name ?>.stl type 1 scale 1.0
 
 # Define physics for particle interactions
 pair_style 	gran model hertz tangential history # 'tangential off' sets Ft=0; 'tangential no_history' incorporates damping to Ft, sets kt=0; 'tangential history' incorporate kt and damping into Ft

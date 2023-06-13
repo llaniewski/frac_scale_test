@@ -1,9 +1,9 @@
 <?R
 	rows = function(x) lapply(seq_len(nrow(x)), function(i) lapply(x, "[[", i))
 
-	tab=read.csv("tab.csv")
+	tab=read.csv("data/tab.csv")
 	for(x in rows(tab)) {
-		sink(paste(x$case_name,"xml",sep="."))
+		sink(paste0("data/",x$case_name,".xml"))
 ?>
 <?xml version="1.0"?>
 <CLBConfig version="2.0" output="output/">
@@ -15,7 +15,7 @@
 	<Geometry nx="0.2m" ny="<?%f 0.9*x$ny ?>m" nz="<?%f 0.9*x$nz ?>m">
 		<BGK><Box/></BGK>
 		<Wall mask="ALL">
-			<STL file="<?%s x$frac_name ?>.stl" scale="1m" side="out" ray_axis="x"/>
+			<STL file="data/<?%s x$frac_name ?>.stl" scale="1m" side="out" ray_axis="x"/>
 		</Wall>
 	</Geometry>
 	<Model>
