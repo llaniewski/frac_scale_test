@@ -26,7 +26,7 @@
 <!--	<VTK what="U,BOUNDARY,Solid"/>
 	<VTK Iterations="100" what="U,BOUNDARY,Solid"/> -->
 	<Log Iterations="500"/>
-	<Solve Iterations="13823"/> 
+	<Solve Iterations="13824"/> 
 </CLBConfig>
 <?R
 		sink()
