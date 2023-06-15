@@ -1,4 +1,4 @@
-setwd("~/repo/frac_scale_test/analysis/")
+
 L = 96*432*432
 
 tot = NULL
@@ -7,6 +7,8 @@ for (comp in c("athena","topaz","setonix")) {
   if (file.exists(tab_fn)) {
     for (vers in c("master","fastdem","fastdem_opp")) {
       tab=read.csv(tab_fn)
+      tab=rbind(tab,data.frame(ny=1,nz=1,k=0,pack_name=NA,frac_name="frac_32_1_1",case_name="flow_0_1_1"))
+      tab=tab[order(tab$k),]
       tab$comp = comp
       tab$vers = vers
       fn = paste0(comp,"/",vers,"/output/",tab$case_name,"_Log_P00_00000000.csv")
@@ -32,12 +34,23 @@ tot$comp = factor(tot$comp)
 tot$vers = factor(tot$vers)
 
 tot$mlups = tot$ips*L/1e6
+tot$ms = 1000/tot$ips
 pdf("perf.pdf")
-plot(tot$k,tot$mlups, ylim=range(0,tot$mlups,na.rm = TRUE),col=as.integer(tot$comp), pch=as.integer(tot$vers),xlab="Number of particles", ylab="MLUPs")
-legend("bottomleft",legend=c(levels(tot$vers), levels(tot$comp)),pch=c(1:nlevels(tot$vers),rep(16,nlevels(tot$comp))),col=c(rep(1,nlevels(tot$vers)),1:nlevels(tot$comp)))
+plot(tot$k,tot$mlups,type="n", ylim=range(0,tot$mlups,na.rm = TRUE),col=as.integer(tot$comp)+1, pch=as.integer(tot$vers),xlab="Number of particles", ylab="MLUPs")
+by(tot,list(tot$comp,tot$vers), function(tot) {
+  lines(tot$k,tot$mlups, type="b",col=as.integer(tot$comp)+1, pch=as.integer(tot$vers))
+})
+legend("bottomleft",legend=c(levels(tot$vers), levels(tot$comp)),pch=c(1:nlevels(tot$vers),rep(16,nlevels(tot$comp))),col=c(rep(1,nlevels(tot$vers)),1:nlevels(tot$comp)+1))
 dev.off()
 
 pdf("ms.pdf")
-plot(tot$k,1/tot$ips, ylim=range(0,1/tot$ips,na.rm = TRUE),col=tot$comp, pch=as.integer(tot$vers),xlab="Number of particles", ylab="s/it")
-legend("bottomleft",c("athena","topaz","present","master branch"),pch=c(16,16,1,2),col=c(1,2,4,4))
+plot(tot$k,tot$ms,type="n", ylim=range(0,tot$ms,na.rm = TRUE),col=as.integer(tot$comp)+1, pch=as.integer(tot$vers),xlab="Number of particles", ylab="ms/iteration")
+by(tot,list(tot$comp,tot$vers), function(tot) {
+  lines(tot$k,tot$ms, type="b",col=as.integer(tot$comp)+1, pch=as.integer(tot$vers))
+})
+legend("bottomright",legend=c(levels(tot$vers), levels(tot$comp)),pch=c(1:nlevels(tot$vers),rep(16,nlevels(tot$comp))),col=c(rep(1,nlevels(tot$vers)),1:nlevels(tot$comp)+1))
 dev.off()
+
+
+
+
