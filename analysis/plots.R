@@ -5,7 +5,8 @@ tot = NULL
 for (comp in c("athena","topaz","setonix")) {
   tab_fn = paste0(comp,"/data/tab.csv")
   if (file.exists(tab_fn)) {
-    for (vers in c("master","develop","develop_nt","develop_zs","fastdem","fastdem_opp")) {
+#    for (vers in c("master","develop","develop_nt","develop_zs","fastdem","fastdem_opp")) {
+    for (vers in c("develop","develop_zs")) {
       tab=read.csv(tab_fn)
       
       tab=rbind(tab,data.frame(ny=1,nz=1,k=0,pack_name=NA,frac_name="frac_32_1_1",case_name="flow_0_1_1"))

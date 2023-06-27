@@ -1,0 +1,34 @@
+This is a test
+
+<?R
+metrics=read.csv("results.metrics.csv")
+metrics = aggregate(metrics,list(factor(metrics$KernelName)), mean)
+metrics$Name = gsub(" *\\[clone \\.kd\\]","",metrics$Group.1)
+
+f = pipe("cat results.stats.csv | sed -E 's|^(.*\\(\\))|\"\\1\"|'")
+stats=read.csv(f)
+
+tab = merge(metrics,stats,by="Name")
+
+ret = data.frame(Name=tab$Name,
+    read_GBps=1e3*tab$FETCH_SIZE/tab$AverageNs,
+    write_GBps=1e3*tab$WRITE_SIZE/tab$AverageNs,
+    all_GBps=1e3*(tab$WRITE_SIZE+tab$FETCH_SIZE)/tab$AverageNs
+)
+
+print(knitr::kable(ret))
+
+ret = data.frame(Name=tab$Name,
+	vgpr = tab$vgpr,
+	sgpr = tab$sgpr,
+	scr = tab$scr
+)
+print(knitr::kable(ret))
+
+ret = data.frame(Name=tab$Name,
+	read = tab$FETCH_SIZE,
+	write = tab$WRITE_SIZE
+)
+print(knitr::kable(ret))
+
+?>
