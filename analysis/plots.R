@@ -5,9 +5,11 @@ tot = NULL
 for (comp in c("athena","topaz","setonix")) {
   tab_fn = paste0(comp,"/data/tab.csv")
   if (file.exists(tab_fn)) {
-    for (vers in c("master","fastdem","fastdem_opp")) {
+    for (vers in c("master","develop","develop_nt","develop_zs","fastdem","fastdem_opp")) {
       tab=read.csv(tab_fn)
+      
       tab=rbind(tab,data.frame(ny=1,nz=1,k=0,pack_name=NA,frac_name="frac_32_1_1",case_name="flow_0_1_1"))
+      tab=rbind(tab,data.frame(ny=1,nz=1,k=0,pack_name=NA,frac_name="frac_32_1_1",case_name="pureflow_1_1"))
       tab=tab[order(tab$k),]
       tab$comp = comp
       tab$vers = vers
@@ -29,6 +31,8 @@ for (comp in c("athena","topaz","setonix")) {
     }
   }
 }
+
+tot = tot[!is.na(tot$ips),]
 
 tot$comp = factor(tot$comp)
 tot$vers = factor(tot$vers)
