@@ -27,7 +27,8 @@ print(knitr::kable(ret))
 
 ret = data.frame(Name=tab$Name,
 	read = tab$FETCH_SIZE,
-	write = tab$WRITE_SIZE
+	write = tab$WRITE_SIZE,
+	CacheHit = tab$L2CacheHit
 )
 print(knitr::kable(ret))
 

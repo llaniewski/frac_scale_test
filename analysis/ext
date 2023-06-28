@@ -1,0 +1,16 @@
+#!/bin/bash
+
+FILE=$1
+test -z "$FILE" && echo bad && exit 1
+
+grep .globl setonix/develop/CLB/d3q27_PSM_NEBB/cuda-hip-amdgcn-amd-amdhsa-gfx90a.s | cut -c 9- >tmp.sym
+
+for KERNEL in $(cat tmp.sym)
+do
+	echo "Extracting $KERNEL"
+	i=$(grep -n "protected[[:space:]]*$KERNEL" $FILE | cut -f 1 -d ':')
+	j=$(grep -n "[.]size[[:space:]]*$KERNEL" $FILE | cut -f 1 -d ':')
+	echo "from $i to $j"
+	cat $FILE | sed -n "${i},${j}p" >${FILE}.${KERNEL}.s
+done
+exit 0;
