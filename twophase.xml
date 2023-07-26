@@ -1,0 +1,33 @@
+
+<?xml version="1.0"?>
+<CLBConfig version="2.0" output="output/">
+	<Units>
+		<Param value="0.2m" gauge="32"/>
+		<Param value="0.01m2/s" gauge="0.05"/>
+		<Param value="1kg/m3" gauge="1"/>
+	</Units>
+	<Geometry nx="0.2m" ny="0.900000m" nz="0.900000m">
+		<MRT><Box/></MRT>
+		<None name="liq">
+			<Box ny="0.45m"/>
+		</None>
+		<Wall mask="ALL">
+			<STL file="data/frac_32_1_1.stl" scale="1m" side="out" ray_axis="x"/>
+		</Wall>
+	</Geometry>
+	<Model>
+		<Param name="Density_h"   value="1"/>
+		<Param name="Density_l"   value="0.33333333"/>
+		<Param name="PhaseField"  value="0"/>
+		<Param name="PhaseField"  value="1" zone="liq"/>
+		<Param name="IntWidth"    value="5"/> 
+		<Param name="M"           value="0.05"/> 
+		<Param name="sigma"       value="3.2e-2N/m" />
+		<Param name="Viscosity_l" value="0.01m2/s"/> 
+		<Param name="Viscosity_h" value="0.01m2/s"/>
+		<Param name="GravitationY" value="4m/s2"/> 
+	</Model>
+	<VTK Iterations="100"/>
+	<Log Iterations="50"/>
+	<Solve Iterations="10000"/> 
+</CLBConfig>
